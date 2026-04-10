@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: build-driver
+        name: Build Driver
+        entry: xcodebuild -project Driver.xcodeproj -scheme Driver -configuration Debug build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
