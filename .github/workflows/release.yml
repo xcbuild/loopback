@@ -1,0 +1,53 @@
+---
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Driver
+        run: |
+          xcodebuild -project Driver.xcodeproj \
+            -scheme Driver \
+            -configuration Release \
+            build \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Find Driver
+        id: find_driver
+        run: |
+          driver_path=$(find ~/Library/Developer/Xcode/DerivedData/Driver-*/Build/Products/Release -name 'Driver.driver' -type d | head -1)
+          driver_dir=$(dirname "$driver_path")
+          cd "$driver_dir"
+          zip -r Driver.driver.zip Driver.driver
+          echo "file_path=$driver_dir/Driver.driver.zip" >> $GITHUB_OUTPUT
+          echo "driver_name=Driver.driver.zip" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ github.token }}
+          file: ${{ steps.find_driver.outputs.file_path }}
+          asset_name: ${{ steps.find_driver.outputs.driver_name }}
+          tag: ${{ github.ref_name }}
+          overwrite: true

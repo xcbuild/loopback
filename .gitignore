@@ -1,0 +1,11 @@
+.DS_Store
+.build/
+*.swp
+*~
+.vscode/
+DerivedData*/
+build/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+Logs/
+info.plist
