@@ -1,5 +1,6 @@
 {
-  "plugins": [
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
     "./plugins/loopback.ts"
   ]
 }
