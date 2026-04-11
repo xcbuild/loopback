@@ -138,9 +138,17 @@ static ULONG LoopbackDriver_Release(void* inDriver) {
 
 static OSStatus LoopbackDriver_Initialize(AudioServerPlugInDriverRef inDriver, AudioServerPlugInHostRef inHost) {
     gState.host = inHost;
-    UInt32 bufferSize = kRingBufferFrames * kChannels;
-    gState.ringBuffer = (float*)calloc(bufferSize, sizeof(float));
-    return gState.ringBuffer ? 0 : 1;
+    if (gState.ringBuffer == NULL) {
+        UInt32 bufferSize = kRingBufferFrames * kChannels;
+        gState.ringBuffer = (float*)calloc(bufferSize, sizeof(float));
+        if (gState.ringBuffer == NULL) {
+            return 1;
+        }
+    }
+    gState.ringBufferWriteIndex = 0;
+    gState.anchorHostTime = 0;
+    gState.anchorSampleTime = 0;
+    return 0;
 }
 
 static OSStatus LoopbackDriver_CreateDevice(AudioServerPlugInDriverRef inDriver, CFDictionaryRef inDescription, const AudioServerPlugInClientInfo* inClientInfo, AudioObjectID* outDeviceObjectID) {
@@ -149,6 +157,10 @@ static OSStatus LoopbackDriver_CreateDevice(AudioServerPlugInDriverRef inDriver,
 }
 
 static OSStatus LoopbackDriver_DestroyDevice(AudioServerPlugInDriverRef inDriver, AudioObjectID inDeviceObjectID) {
+    if (gState.ringBuffer != NULL) {
+        free(gState.ringBuffer);
+        gState.ringBuffer = NULL;
+    }
     return 0;
 }
 

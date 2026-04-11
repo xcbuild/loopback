@@ -1,8 +1,10 @@
 # Audio Loopback Driver
 
-Audio Loopback Driver is an M1 compatible virtual audio loopback driver for macOS. It creates a virtual audio device that allows you to route audio between applications without needing a paid Apple Developer Program membership.
+Audio Loopback Driver is an M1 compatible virtual audio loopback driver for macOS. It creates a virtual audio device that allows you to route audio between applications.
 
-This driver supports macOS Apple Silicon (arm64) and macOS Intel (x86_64) platforms. It uses Apple's native AudioServerPlugIn API (HAL) to create a virtual audio device that appears in macOS like any other audio interface. The driver provides 2 channel audio at 48kHz sample rate (both configurable), with zero-latency loopback between input and output streams. Volume and mute controls are built-in for easy audio management.
+This driver supports macOS Apple Silicon (arm64/arm64e) and macOS Intel (x86_64) platforms. It uses Apple's native AudioServerPlugIn API (HAL) to create a virtual audio device that appears in macOS like any other audio interface. The driver provides 2 channel audio at 48kHz sample rate (both configurable), with zero-latency loopback between input and output streams. Volume and mute controls are built-in for easy audio management.
+
+Note: On macOS 26+ (Sequoia and later), a paid Apple Developer Program membership is required to load custom HAL audio drivers. On macOS 25 and earlier, the driver can be built with ad-hoc signing.
 
 To install, copy the driver bundle to the HAL plugins folder and restart CoreAudio:
 
@@ -16,7 +18,8 @@ Once installed, open Audio MIDI Setup and you will see "Audio Loopback" as an av
 To build from source:
 
 ```bash
-xcodebuild -project Driver.xcodeproj -scheme Driver -configuration Release build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO
+# On Apple Silicon, coreaudiod commonly runs as arm64e, so build an arm64e slice.
+xcodebuild -project Driver.xcodeproj -scheme Driver -configuration Release build ARCHS=arm64e CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM="" PROVISIONING_PROFILE_SPECIFIER="" CODE_SIGNING_REQUIRED=NO
 ```
 
 To uninstall:

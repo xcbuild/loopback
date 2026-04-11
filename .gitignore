@@ -3,7 +3,9 @@
 *.swp
 *~
 .vscode/
-DerivedData/
+DerivedData*/
 build/
 *.xcodeproj/xcuserdata/
-*.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/DerivedData*/
+Logs/
+info.plist
